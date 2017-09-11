@@ -26,7 +26,6 @@ def send_msg(client, user, message, interval):
     except:
         res = False
     finally:
-        time.sleep(interval)
         return res
 
 def start_spam(accounts, user_list, interval, message):
