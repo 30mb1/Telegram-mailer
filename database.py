@@ -101,3 +101,8 @@ class Storage(object):
 
     def get_spam_jobs(self):
         return self.database['spam_jobs'].find()
+
+    def delete_spam_job(self, message):
+        self.database['spam_jobs'].delete_one(
+            { 'message' : message }
+        )

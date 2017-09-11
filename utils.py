@@ -1,6 +1,6 @@
 from multiprocessing import Process, Lock
 import time
-from app import process_list, mutex_list
+from app import process_list
 from uuid import uuid4
 from telethon import TelegramClient
 from database import Storage
@@ -9,18 +9,17 @@ def make_request(tg_client, phone):
 
     tg_client.connect()
 
-    tg_client.sign_in(phone)
+    tg_client.send_code_request(phone)
 
     tg_client.disconnect()
 
 def request_sign_in(tg_client, phone):
 
     p = Process(target=make_request, args=(tg_client, phone, ))
-    process_list[uuid4()] = { 'process' : p, 'times_checked' : 0 }
+    process_list[uuid4()] = { 'process' : p, 'times_checked' : 0, 'default_time' : 60 }
     p.start()
 
-def send_msg(client, user, message, mutex, interval):
-    mutex.acquire()
+def send_msg(client, user, message, interval):
     try:
         client.send_msg(user, message)
         res = True
@@ -28,38 +27,50 @@ def send_msg(client, user, message, mutex, interval):
         res = False
     finally:
         time.sleep(interval)
-        mutex.release()
         return res
 
-def start_spam(phone, user_list, interval, message):
+def start_spam(accounts, user_list, interval, message):
     s = Storage()
     keys = s.get_api_keys()
 
-    session_id = s.get_session_id_by_phone(phone)
+    clients = [TelegramClient(acc['session_id'], keys['api_id'], keys['api_hash']) for acc in accounts]
 
-    client = TelegramClient(session_id, keys['api_id'], keys['api_hash'])
-    client.connect()
+    for idx, client in enumerate(clients):
+        print ('Client {} connected.'.format(idx))
+        client.connect()
 
-    mutex = mutex_list.setdefault(phone, Lock())
-
-    for user in user_list:
+    for idx, user in enumerate(user_list):
         not_edited = user
         if user[0] == '@':
             user = user[1:]
-        if send_msg(client, user, message, mutex, interval):
+
+        if send_msg(clients[idx % len(accounts)], user, message, interval):
             s.user_invoiced(message, not_edited)
+
+        time.sleep(interval)
+
+    for client in clients:
+        client.disconnect()
 
 
 def garbage_collector():
     print ('garbage_collector started.')
     while True:
         for key, item in process_list.items():
-            if item['times_checked'] <= 5:
-                item['times_checked'] += 1
+            #process dead
+            if not item['process'].is_alive():
+                item['process'].terminate()
+                item['process'].join()
+                process_list.pop(key, None)
                 continue
 
-            item['process'].terminate()
-            item['process'].join()
+            #check if process already wasted its time
+            if (item['times_checked'] - 1) * 3600 > item['default_time']:
+                item['process'].terminate()
+                item['process'].join()
+                process_list.pop(key, None)
+                continue
 
-            process_list.pop(key, None)
+            item['times_checked'] += 1
+
         time.sleep(3600)

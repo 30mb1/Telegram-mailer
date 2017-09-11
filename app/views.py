@@ -38,28 +38,40 @@ def config():
         #split list into smaller pieces for every account
         if len(accs) > 0:
             current_app.database.insert_spam_job(users, spam_form.message.data)
-            users = [users[x:x + int(len(users) / len(accs) + 1)] for x in range(0, len(users), int(len(users) / len(accs) + 1))]
 
-            for idx, acc in enumerate(accs):
-
-                #start spamming in another process
-                p = Process(
-                    target=start_spam,
-                    args=(
-                        acc['phone'],
-                        users[idx],
-                        float(spam_form.interval.data),
-                        spam_form.message.data,
-                    )
+            #start spamming in another process
+            p = Process(
+                target=start_spam,
+                args=(
+                    accs,
+                    users,
+                    float(spam_form.interval.data),
+                    spam_form.message.data,
                 )
-                process_list[spam_form.message.data] = { 'process' : p, 'times_checked' : 0 }
-                p.start()
+            )
+
+            process_list[spam_form.message.data] = { 'process' : p, 'times_checked' : 0, 'default_time' : len(users) * interval * 2}
+            p.start()
         else:
             flash('You need to add telegram accounts first.')
 
         #print (spam_form.data)
 
+    if len(request.args) != 0:
+        process_list[next(request.args.keys())].terminate()
+
     jobs = current_app.database.get_spam_jobs()
+    alive_jobs = []
+    for job in jobs:
+        if process_list.get(job['message'], None) != None:
+            if process_list[job['message']].is_alive():
+                alive_jobs.append(job)
+            else:
+                current_app.database.delete_spam_job(job['message'])
+        else:
+            current_app.database.delete_spam_job(job['message'])
+
+    [job for job in jobs if process_list[job['message']].is_alive()]
 
     return render_template('config.html', spam_form=spam_form, jobs=jobs)
 
@@ -104,7 +116,7 @@ def account():
             client = current_app.telegram_clients[request.form['phone']]
             try:
                 client.connect()
-                client.sign_in(code=request.form['code'])
+                client.sign_in(request.form['phone'], code=request.form['code'])
                 time.sleep(0.5)
                 if not client.is_user_authorized():
                     client.disconnect()
