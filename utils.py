@@ -22,7 +22,7 @@ def request_sign_in(phone):
 
 def send_msg(client, user, message, interval):
     try:
-        client.send_msg(user, message)
+        client.send_message(user, message)
         print ('Message sent to {}'.format(user))
 
         res = True
