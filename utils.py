@@ -1,4 +1,4 @@
-from multiprocessing import Process, Lock
+from threading import Thread
 import time
 from app import process_list
 import logging
@@ -21,8 +21,7 @@ def make_request(tg_client, phone):
 
 def request_sign_in(tg_client, phone):
 
-    p = Process(target=make_request, args=(tg_client, phone, ))
-    process_list[uuid4()] = { 'process' : p, 'times_checked' : 0, 'default_time' : 60 }
+    p = Thread(target=make_request, args=(tg_client, phone, ))
     p.start()
 
 def send_msg(client, user, message, interval):
