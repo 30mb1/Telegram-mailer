@@ -64,7 +64,7 @@ def config():
     alive_jobs = []
     for job in jobs:
         if process_list.get(job['message'], None) != None:
-            if process_list[job['message']].is_alive():
+            if process_list[job['message']]['process'].is_alive():
                 alive_jobs.append(job)
             else:
                 current_app.database.delete_spam_job(job['message'])
