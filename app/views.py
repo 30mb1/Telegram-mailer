@@ -77,7 +77,7 @@ def config():
 
 @app.route('/account', methods=['GET','POST'])
 def account():
-    print (current_app)
+    print (current_app.kek)
     reg_form = forms.RegistrationForm()
     new_acc_form = forms.newAccountForm()
 
