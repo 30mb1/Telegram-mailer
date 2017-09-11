@@ -77,6 +77,7 @@ def config():
 
 @app.route('/account', methods=['GET','POST'])
 def account():
+    print (current_app)
     reg_form = forms.RegistrationForm()
     new_acc_form = forms.newAccountForm()
 
@@ -100,7 +101,7 @@ def account():
             request_sign_in(client, data['phone'])
 
             current_app.database.add_account(new_acc_form.data, unique_key)
-            current_app.telegram_clients.update({ data['phone'] : client })
+            #current_app.telegram_clients.update({ data['phone'] : client })
 
         except:
             flash('Some error occured, try again.', 'registration error')
@@ -116,7 +117,8 @@ def account():
             client = current_app.telegram_clients[request.form['phone']]
             try:
                 client.connect()
-                client.sign_in(request.form['phone'], code=request.form['code'])
+                client.sign_in(code=request.form['code'])
+
                 time.sleep(0.5)
                 if not client.is_user_authorized():
                     client.disconnect()

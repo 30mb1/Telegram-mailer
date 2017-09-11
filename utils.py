@@ -1,9 +1,13 @@
 from multiprocessing import Process, Lock
 import time
 from app import process_list
+import logging
 from uuid import uuid4
 from telethon import TelegramClient
 from database import Storage
+from flask import current_app
+
+logging.basicConfig(level=logging.DEBUG)
 
 def make_request(tg_client, phone):
 
@@ -12,6 +16,8 @@ def make_request(tg_client, phone):
     tg_client.send_code_request(phone)
 
     tg_client.disconnect()
+
+    current_app.kek = 'kek'
 
 def request_sign_in(tg_client, phone):
 
