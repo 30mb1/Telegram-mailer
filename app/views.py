@@ -106,9 +106,10 @@ def account():
             try:
                 client.connect()
                 client.sign_in(code=request.form['code'])
-                if not client.is_user_authorized():
-                    client.disconnect()
-                    raise Exception
+                #if not client.is_user_authorized():
+                #
+                #    client.disconnect()
+                #    raise Exception
                 client.disconnect()
 
                 current_app.telegram_clients.pop(request.form['phone'], None)
