@@ -28,6 +28,7 @@ def send_msg(client, user, message, interval):
         res = True
     except Exception as e:
         print ('Trouble while sending message to {}'.format(user))
+        print (e)
         res = False
     finally:
         return res
