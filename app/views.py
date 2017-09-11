@@ -58,7 +58,7 @@ def config():
         #print (spam_form.data)
 
     if len(request.args) != 0:
-        process_list[next(request.args.keys())].terminate()
+        process_list[next(request.args.keys())]['process'].terminate()
 
     jobs = current_app.database.get_spam_jobs()
     alive_jobs = []

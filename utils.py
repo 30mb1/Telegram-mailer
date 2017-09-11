@@ -42,7 +42,7 @@ def start_spam(accounts, user_list, interval, message):
         except Exception as e:
             print ("Client {} can't connect: ".format(idx))
             print (e)
-            
+
     for idx, user in enumerate(user_list):
         not_edited = user
         if user[0] == '@':
