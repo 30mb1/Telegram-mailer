@@ -23,8 +23,11 @@ def request_sign_in(phone):
 def send_msg(client, user, message, interval):
     try:
         client.send_msg(user, message)
+        print ('Message sent to {}'.format(user))
+
         res = True
-    except:
+    except Exception as e:
+        print ('Trouble while sending message to {}'.format(user))
         res = False
     finally:
         return res
@@ -39,6 +42,7 @@ def start_spam(accounts, user_list, interval, message):
         try:
             client.connect()
             print ('Client {} connected.'.format(idx))
+            print ('Client authorized: {}'.format(client.is_user_authorized()))
         except Exception as e:
             print ("Client {} can't connect: ".format(idx))
             print (e)
