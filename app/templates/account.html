@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.ico') }}">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+	<title>Bot Admin Panel</title>
+
+	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+  <!-- Buttons core css -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/buttons.css') }}">
+
+    <!-- Only needed if you want font icons -->
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet">
+
+    <!-- Bootstrap core CSS     -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!--  Light Bootstrap Table core CSS    -->
+    <link href="{{ url_for('static', filename='css/light-bootstrap-dashboard.css') }}" rel="stylesheet"/>
+
+
+    <!--     Fonts and icons     -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
+    <link href="{{ url_for('static', filename='css/pe-icon-7-stroke.css') }}" rel="stylesheet" />
+</head>
+<body>
+
+    <div class="wrapper">
+        <div class="sidebar" data-color="purple" data-image="{{ url_for('static', filename='img/sidebar-5.jpg') }}">
+        <!--   you can change the color of the sidebar using: data-color="blue | azure | green | orange | red | purple" -->
+        	<div class="sidebar-wrapper">
+                <ul class="nav">
+                    <li>
+                        <a href="index">
+                            <i class="pe-7s-graph"></i>
+                            <p>Dashboard</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="config">
+                            <i class="pe-7s-config"></i>
+                            <p>Mailer</p>
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="account">
+                            <i class="pe-7s-user"></i>
+                            <p>Account</p>
+                        </a>
+                    </li>
+                </ul>
+        	</div>
+        </div>
+
+        <div class="main-panel">
+            <nav class="navbar navbar-default navbar-fixed">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <a class="navbar-brand">Account</a>
+                    </div>
+                    <div class="collapse navbar-collapse">
+                        <ul class="nav navbar-nav navbar-right">
+                            <li>
+                                <a href="logout">
+                                    <p>Log Out</p>
+                                </a>
+                            </li>
+    						<li class="separator hidden-lg hidden-md"></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+
+            <div class="content">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="header">
+                                    <h4 class="title">Account</h4>
+                                </div>
+
+                                <div class="content">
+                                    {% from "/macros.html" import render_field %}
+                                    <form method="post">
+                                        {{ reg_form.csrf_token }}
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                {{ render_field(reg_form.username, class="form-control", placeholder="Your new username") }}
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                {{ render_field(reg_form.password, class="form-control", placeholder="Your new password") }}
+                                            </div>
+                                        </div>
+                                        {{ reg_form.submit_reg(class="button button-pill button-primary", value="Update") }}
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="header">
+                                    <h4 class="title">New telegram account</h4>
+                                </div>
+                                {% with messages = get_flashed_messages(category_filter=["registration error"]) %}
+                                  {% if messages %}
+                                    <ul class=flashes>
+                                    {% for message in messages %}
+                                      <li>{{ message }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                  {% endif %}
+                                {% endwith %}
+                                <div class="content">
+                                    {% from "/macros.html" import render_field %}
+                                    <form method="post">
+                                        {{ new_acc_form.csrf_token }}
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                {{ render_field(new_acc_form.phone, class="form-control", placeholder="Account phone") }}
+                                            </div>
+                                        </div>
+
+                                        {{ new_acc_form.submit_acc(class="button button-pill button-primary", value="Add account") }}
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        {% for account in all_accounts %}
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="header">
+                                    <h4 class="title">{{account.phone}}</h4>
+                                </div>
+                                {% with messages = get_flashed_messages(category_filter=["activating error"]) %}
+                                  {% if messages %}
+                                    <ul class=flashes>
+                                    {% for message in messages %}
+                                      <li>{{ message }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                  {% endif %}
+                                {% endwith %}
+                                <hr/>
+                                <div class="content">
+                                    <form action="account" method="post">
+                                    <div class="form-group">
+                                        {% if not account.activated %}
+                                        <p>Enter code: </p><input class="form-control" name="code" type="text" placeholder="code">
+                                        {% else %}
+                                        <p><b>Activated: </b> True </p>
+                                        {% endif %}
+                                    </div>
+                                        <input type="hidden" name="phone" value="{{account.phone}}">
+                                        {% if not account.activated %}
+                                        <input type="submit" name="action" value="Activate" class="button button-pill button-primary">
+                                        {% endif %}
+                                        <input type="submit" name="action" value="Remove" class="button button-pill button-primary">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+    <!--   Core JS Files   -->
+    <!--   Core JS Files   -->
+    <script src="{{ url_for('static', filename='js/jquery-1.10.2.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/bootstrap-notify.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/light-bootstrap-dashboard.js') }}"></script>
+
+</html>

@@ -1,0 +1,27 @@
+{% macro render_field_login(field) %}
+    <div class="group">
+    {% if field.errors %}
+        {% set css_class = 'has_error ' + kwargs.pop('class', '') %}
+        {{ field(class=css_class, **kwargs) }} <span class="highlight"></span><span class="bar"></span>
+        {{ field.label(class="label") }}
+        <ul class="errors">{% for error in field.errors %}<li>{{ error|e}}</li>{% endfor %}</ul>
+    {% else %}
+        {{ field(**kwargs) }}<span class="highlight"></span><span class="bar"></span>
+        {{ field.label(class="label") }}
+    {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro render_field(field) %}
+    <div class="form-group">
+    {% if field.errors %}
+        {% set css_class = 'has_error ' + kwargs.pop('class', '') %}
+        {{ field.label(class="label") }}
+        {{ field(class=css_class, **kwargs) }}
+        <ul>{% for error in field.errors %}<li>{{ error|e}}</li>{% endfor %}</ul>
+    {% else %}
+        {{ field.label(class="label") }}
+        {{ field(**kwargs) }}
+    {% endif %}
+    </div>
+{% endmacro %}

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.ico') }}">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+
+	<title>Bot Admin Panel</title>
+
+	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
+    <!-- Bootstrap core CSS     -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='chartist/dist/chartist.min.css') }}">
+    <!-- Animation library for notifications   -->
+    <link href="{{ url_for('static', filename='css/animate.min.css') }}" rel="stylesheet"/>
+    <!--  Light Bootstrap Table core CSS    -->
+    <link href="{{ url_for('static', filename='css/light-bootstrap-dashboard.css') }}" rel="stylesheet"/>
+    <!--     Fonts and icons     -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
+    <link href="{{ url_for('static', filename='css/pe-icon-7-stroke.css') }}" rel="stylesheet" />
+
+</head>
+<body>
+<div class="wrapper">
+    <div class="sidebar" data-color="purple" data-image="{{ url_for('static', filename='img/sidebar-5.jpg') }}">
+
+    	<div class="sidebar-wrapper">
+
+            <ul class="nav">
+                <li class="active">
+                    <a href="index">
+                        <i class="pe-7s-graph"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="config">
+                        <i class="pe-7s-config"></i>
+                        <p>Mailer</p>
+                    </a>
+                </li>
+                <li>
+                    <a href="account">
+                        <i class="pe-7s-user"></i>
+                        <p>Account</p>
+                    </a>
+                </li>
+            </ul>
+    	</div>
+    </div>
+
+    <div class="main-panel">
+        <nav class="navbar navbar-default navbar-fixed">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navigation-example-2">
+                    </button>
+                    <a class="navbar-brand" href="#">Dashboard</a>
+                </div>
+                <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="logout">
+                                <p>Log Out</p>
+                            </a>
+                        </li>
+						<li class="separator hidden-lg hidden-md"></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+
+        <div class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="header">
+                                <h4 class="title">Active loan offers</h4>
+                                <!--<p class="category">Active offers</p>-->
+                            </div>
+                            <div class="content">
+                                <div id="cur_state" class="ct-chart">
+                                </div>
+
+                                <div class="footer">
+                                    <div class="legend">
+                                        {% for name in names %}
+                                        <i class="fa fa-circle text-{{name[1]}}"></i> {{name[0]}}
+                                        {% endfor %}
+                                    </div>
+                                    <hr>
+                                    {% if diff_str %}
+                                    <div class="stats">
+                                        <i class="fa fa-history"></i> Updated {{diff_str}}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="card ">
+                            <div class="header">
+                                <h4 class="title">Active loan offers</h4>
+                                <p class="category">All values are in BTC</p>
+                            </div>
+                            <div class="content">
+                                <div id="value_chart" class="ct-chart"></div>
+                                <div class="footer">
+                                    <div class="legend">
+                                        {% for name in names %}
+                                        <i class="fa fa-circle text-{{name[1]}}"></i> {{name[0]}}
+                                        {% endfor %}
+                                    </div>
+                                    <hr>
+                                    {% if diff_str %}
+                                    <div class="stats">
+                                        <i class="fa fa-history"></i> Updated {{diff_str}}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card ">
+                            <div class="header">
+                                <h4 class="title">Trade history</h4>
+                            </div>
+                            <div class="content">
+                                <div class="table-full-width" style="height:300px; overflow: auto">
+                                    <table class="table">
+                                        <tbody>
+                                            {% for log in logs%}
+                                            <tr>
+                                                <td>
+                                                </td>
+                                                <td>{{log}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+
+    <!--   Core JS Files   -->
+    <script src="{{ url_for('static', filename='js/jquery-1.10.2.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/bootstrap-checkbox-radio-switch.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/bootstrap-notify.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/light-bootstrap-dashboard.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='chartist/dist/chartist.min.js') }}"></script>
+
+    <script type="text/javascript">
+
+        new Chartist.Bar('#value_chart', {
+            labels: [
+            ],
+            series: [
+                {% for value in values %}
+                {{value}},
+                {% endfor %}
+            ]
+            }, {
+                distributeSeries: true
+        });
+
+        var data = {
+            series: [
+                {% for value in values %}
+                {{value}},
+                {% endfor %}
+            ]
+        };
+
+        var sum = function(a, b) { return a + b };
+
+        new Chartist.Pie('#cur_state', data, {
+            labelInterpolationFnc: function(value) {
+                return Math.round(value / data.series.reduce(sum) * 100) + '%';
+            }
+        });
+
+    </script>
+
+</html>
