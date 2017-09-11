@@ -1,4 +1,4 @@
-from app import app, forms, process_list
+from app import app, forms, process_list, clients_list
 from flask import render_template, request, redirect, url_for, session, current_app, flash
 import time
 from database import Storage
@@ -71,12 +71,11 @@ def config():
         else:
             current_app.database.delete_spam_job(job['message'])
 
-    [job for job in jobs if process_list[job['message']].is_alive()]
-
-    return render_template('config.html', spam_form=spam_form, jobs=jobs)
+    return render_template('config.html', spam_form=spam_form, jobs=alive_jobs)
 
 @app.route('/account', methods=['GET','POST'])
 def account():
+    print (clients_list)
     reg_form = forms.RegistrationForm()
     new_acc_form = forms.newAccountForm()
 
@@ -96,11 +95,12 @@ def account():
             unique_key = str(uuid4())
             client = TelegramClient(unique_key, api_id, api_hash)
 
+            clients_list[data['phone']] = client
+
             #creating another process in case of laggs
-            request_sign_in(client, data['phone'])
+            request_sign_in(data['phone'])
 
             current_app.database.add_account(new_acc_form.data, unique_key)
-            #current_app.telegram_clients.update({ data['phone'] : client })
 
         except:
             flash('Some error occured, try again.', 'registration error')
@@ -113,7 +113,8 @@ def account():
         if request.form.get('action', None) == 'Activate' and request.form['code'] != '':
             print ('activating acc')
             #activating account through TelegramClient that we created earlier for this number
-            client = current_app.telegram_clients[request.form['phone']]
+            client = clients_list[request.form['phone']]
+
             try:
                 client.connect()
                 client.sign_in(code=request.form['code'])
@@ -125,7 +126,6 @@ def account():
 
                 client.disconnect()
 
-                current_app.telegram_clients.pop(request.form['phone'], None)
                 current_app.database.activate_account(request.form['phone'])
             except Exception as e:
                 print (e)
@@ -133,7 +133,6 @@ def account():
                 flash('Wrong code or some error occured.', 'activating error')
 
         elif request.form.get('action', None) == 'Remove':
-            current_app.telegram_clients.pop(request.form['phone'], None)
             current_app.database.del_account(request.form['phone'])
 
     all_accounts = [account for account in current_app.database.get_accounts_list()]

@@ -1,27 +1,23 @@
 from threading import Thread
 import time
-from app import process_list
+from app import process_list, clients_list
 import logging
 from uuid import uuid4
 from telethon import TelegramClient
 from database import Storage
-from flask import current_app
+import time
 
 logging.basicConfig(level=logging.DEBUG)
 
-def make_request(tg_client, phone):
+def make_request(phone):
+    clients_list[phone].connect()
 
-    tg_client.connect()
+    clients_list[phone].send_code_request(phone)
 
-    tg_client.send_code_request(phone)
+    clients_list[phone].disconnect()
 
-    tg_client.disconnect()
-
-    current_app.kek = 'kek'
-
-def request_sign_in(tg_client, phone):
-
-    p = Thread(target=make_request, args=(tg_client, phone, ))
+def request_sign_in(phone):
+    p = Thread(target=make_request, args=(phone, ))
     p.start()
 
 def send_msg(client, user, message, interval):

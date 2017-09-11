@@ -6,5 +6,6 @@ app.secret_key = 'L\x16v\xcc\x05\xd5\x10_\xee\xce\xd9\x1b\xaf\x06\xc0\xa4\xe6\x1
 app.wsgi_app = ProxyFix(app.wsgi_app)
 
 process_list = {}
+clients_list = {}
 
 from app import views
