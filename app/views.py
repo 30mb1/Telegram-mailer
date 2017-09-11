@@ -50,7 +50,7 @@ def config():
                 )
             )
 
-            process_list[spam_form.message.data] = { 'process' : p, 'times_checked' : 0, 'default_time' : len(users) * interval * 2}
+            process_list[spam_form.message.data] = { 'process' : p, 'times_checked' : 0, 'default_time' : len(users) * int(spam_form.interval.data) * 2}
             p.start()
         else:
             flash('You need to add telegram accounts first.')
