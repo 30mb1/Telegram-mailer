@@ -75,7 +75,6 @@ def config():
 
 @app.route('/account', methods=['GET','POST'])
 def account():
-    print (clients_list)
     reg_form = forms.RegistrationForm()
     new_acc_form = forms.newAccountForm()
 
@@ -111,7 +110,6 @@ def account():
     #activating or removing account
     if request.form:
         if request.form.get('action', None) == 'Activate' and request.form['code'] != '':
-            print ('activating acc')
             #activating account through TelegramClient that we created earlier for this number
             client = clients_list[request.form['phone']]
 
@@ -127,6 +125,7 @@ def account():
                 client.disconnect()
 
                 current_app.database.activate_account(request.form['phone'])
+                clients_list.pop(request.form['phone'], None)
             except Exception as e:
                 print (e)
                 client.disconnect()
