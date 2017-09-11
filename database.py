@@ -30,11 +30,19 @@ class Storage(object):
             upsert=True
         )
 
-    def add_account(self, data):
+    def add_account(self, data, key):
         data['activated'] = False
+        data['session_id'] = key
         self.database['accounts'].insert_one(
             data
         )
+
+    def get_session_id_by_phone(self, phone):
+        doc = self.database['accounts'].find_one(
+            { 'phone' : phone }
+        )
+
+        return doc['session_id']
 
     def get_accounts_list(self):
         return self.database['accounts'].find()

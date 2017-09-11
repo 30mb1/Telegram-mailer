@@ -35,8 +35,6 @@ def config():
         #get list of users
         users = spam_form.users.data.split('\r\n')
 
-
-
         #split list into smaller pieces for every account
         if len(accs) > 0:
             current_app.database.insert_spam_job(users, spam_form.message.data)
@@ -83,12 +81,13 @@ def account():
         #create new TelegramClient for this number and request activation
         try:
             data = new_acc_form.data
-            client = TelegramClient(data['phone'], api_id, api_hash)
+            unique_key = str(uuid4())
+            client = TelegramClient(unique_key, api_id, api_hash)
 
             #creating another process in case of laggs
             request_sign_in(client, data['phone'])
 
-            current_app.database.add_account(new_acc_form.data)
+            current_app.database.add_account(new_acc_form.data, unique_key)
             current_app.telegram_clients.update({ data['phone'] : client })
 
         except:
@@ -109,12 +108,14 @@ def account():
                 #if not client.is_user_authorized():
                 #
                 #    client.disconnect()
+                #
                 #    raise Exception
                 client.disconnect()
 
                 current_app.telegram_clients.pop(request.form['phone'], None)
                 current_app.database.activate_account(request.form['phone'])
             except:
+                client.disconnect()
                 flash('Wrong code or some error occured.', 'activating error')
 
         elif request.form.get('action', None) == 'Remove':

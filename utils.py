@@ -35,7 +35,9 @@ def start_spam(phone, user_list, interval, message):
     s = Storage()
     keys = s.get_api_keys()
 
-    client = TelegramClient(phone, keys['api_id'], keys['api_hash'])
+    session_id = s.get_session_id_by_phone(phone)
+
+    client = TelegramClient(session_id, keys['api_id'], keys['api_hash'])
     client.connect()
 
     mutex = mutex_list.setdefault(phone, Lock())
