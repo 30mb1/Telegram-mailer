@@ -36,9 +36,13 @@ def start_spam(accounts, user_list, interval, message):
     clients = [TelegramClient(acc['session_id'], keys['api_id'], keys['api_hash']) for acc in accounts]
 
     for idx, client in enumerate(clients):
-        print ('Client {} connected.'.format(idx))
-        client.connect()
-
+        try:
+            client.connect()
+            print ('Client {} connected.'.format(idx))
+        except Exception as e:
+            print ("Client {} can't connect: ".format(idx))
+            print (e)
+            
     for idx, user in enumerate(user_list):
         not_edited = user
         if user[0] == '@':
