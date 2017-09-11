@@ -61,6 +61,15 @@ def start_spam(accounts, user_list, interval, message):
     for client in clients:
         client.disconnect()
 
+def generate_report():
+    print ('report generated')
+    s = Storage()
+    data = next(s.get_spam_jobs())
+    print (data)
+    filename = './tmp/report.txt'
+    with open(filename, 'w') as f:
+        for user, delivered in data['delivery'].items():
+            f.write('{} - {}\n'.format(user, delivered))
 
 def garbage_collector():
     print ('garbage_collector started.')

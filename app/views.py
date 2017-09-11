@@ -1,13 +1,15 @@
 from app import app, forms, process_list, clients_list
-from flask import render_template, request, redirect, url_for, session, current_app, flash
+from flask import render_template, request, redirect, url_for, session, current_app, flash, send_from_directory
 import time
 from database import Storage
 from telethon import TelegramClient
 import logging
-from utils import request_sign_in, garbage_collector, start_spam
+from utils import request_sign_in, garbage_collector, start_spam, generate_report
 import threading
 from multiprocessing import Process
 from uuid import uuid4
+import os
+import os.path
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -58,7 +60,11 @@ def config():
         #print (spam_form.data)
 
     if len(request.args) != 0:
-        process_list[next(request.args.keys())]['process'].terminate()
+        args = [i for i in request.args.keys()]
+        if 'Report' in args:
+            return redirect('report')
+        else:
+            process_list[args[0]]['process'].terminate()
 
     jobs = current_app.database.get_spam_jobs()
     alive_jobs = []
@@ -137,6 +143,17 @@ def account():
     all_accounts = [account for account in current_app.database.get_accounts_list()]
 
     return render_template('account.html', reg_form=reg_form, new_acc_form=new_acc_form, all_accounts=all_accounts)
+
+@app.route('/report')
+def get_report():
+    generate_report()
+    try:
+        return send_from_directory(
+            os.path.join(os.getcwd(), 'tmp'), 'report.txt'
+        )
+    except Exception as e:
+        print (e)
+        return redirect(url_for('config'))
 
 @app.route('/')
 @app.route('/index')
