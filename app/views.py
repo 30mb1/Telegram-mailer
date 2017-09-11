@@ -105,16 +105,17 @@ def account():
             try:
                 client.connect()
                 client.sign_in(code=request.form['code'])
-                #if not client.is_user_authorized():
-                #
-                #    client.disconnect()
-                #
-                #    raise Exception
+                time.sleep(0.5)
+                if not client.is_user_authorized():
+                    client.disconnect()
+                    raise Exception("Looks like there was a wrong code? user not authorized.")
+
                 client.disconnect()
 
                 current_app.telegram_clients.pop(request.form['phone'], None)
                 current_app.database.activate_account(request.form['phone'])
-            except:
+            except Exception as e:
+                print (e)
                 client.disconnect()
                 flash('Wrong code or some error occured.', 'activating error')
 
