@@ -53,6 +53,7 @@ def config():
             )
 
             process_list[spam_form.message.data] = { 'process' : p, 'times_checked' : 0, 'default_time' : len(users) * int(spam_form.interval.data) * 2}
+
             p.start()
         else:
             flash('You need to add telegram accounts first.')
@@ -149,7 +150,8 @@ def get_report():
     generate_report()
     try:
         return send_from_directory(
-            os.path.join(os.getcwd(), 'tmp'), 'report.txt'
+            os.path.join(os.getcwd(), 'tmp'),
+            'report.txt'
         )
     except Exception as e:
         print (e)

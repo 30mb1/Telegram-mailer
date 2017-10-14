@@ -62,7 +62,6 @@ def start_spam(accounts, user_list, interval, message):
         client.disconnect()
 
 def generate_report():
-    print ('report generated')
     s = Storage()
     data = next(s.get_spam_jobs())
     print (data)
@@ -72,13 +71,14 @@ def generate_report():
             f.write('{} - {}\n'.format(user, delivered))
 
 def garbage_collector():
-    print ('garbage_collector started.')
     while True:
-        for key, item in process_list.items():
+        processes_to_delete = []
+        for key, item in list(process_list.items()):
             #process dead
             if not item['process'].is_alive():
                 item['process'].terminate()
                 item['process'].join()
+                processes_to_delete.append(key)
                 process_list.pop(key, None)
                 continue
 
@@ -86,6 +86,7 @@ def garbage_collector():
             if (item['times_checked'] - 1) * 3600 > item['default_time']:
                 item['process'].terminate()
                 item['process'].join()
+                processes_to_delete.append(key)
                 process_list.pop(key, None)
                 continue
 
