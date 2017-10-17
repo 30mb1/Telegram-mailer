@@ -47,19 +47,34 @@ def start_spam(accounts, user_list, interval, message):
         except Exception as e:
             print ("Client {} can't connect: ".format(idx))
             print (e)
+            # try one more time
+            try:
+                client.connect()
+                print ('Client {} connected.'.format(idx))
+                print ('Client authorized: {}'.format(client.is_user_authorized()))
+            except Exception as e:
+                print ("Client {} can't connect: ".format(idx))
+
+
 
     for idx, user in enumerate(user_list):
         not_edited = user
         if user[0] == '@':
             user = user[1:]
 
-        if send_msg(clients[idx % len(accounts)], user, message, interval):
-            s.user_invoiced(message, not_edited)
+        try:
+            if send_msg(clients[idx % len(accounts)], user, message, interval):
+                s.user_invoiced(message, not_edited)
+        except Exception as e:
+            print (e) # set logger later
 
         time.sleep(interval)
 
     for client in clients:
-        client.disconnect()
+        try:
+            client.disconnect()
+        except Exception as e:
+            print (e) # set logger later
 
 def generate_report():
     s = Storage()
