@@ -21,6 +21,7 @@ def request_sign_in(phone):
     p.start()
 
 def send_msg(client, user, message, interval):
+    res = False
     try:
         client.send_message(user, message)
         print ('Message sent to {}'.format(user))
@@ -29,7 +30,6 @@ def send_msg(client, user, message, interval):
     except Exception as e:
         print ('Trouble while sending message to {}'.format(user))
         print (e)
-        res = False
     finally:
         return res
 
