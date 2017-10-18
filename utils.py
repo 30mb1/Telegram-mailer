@@ -17,10 +17,11 @@ def make_request(phone):
     clients_list[phone].disconnect()
 
 def request_sign_in(phone):
+    # request code in another thread, because sometimes it got stuck for no reason
     p = Thread(target=make_request, args=(phone, ))
     p.start()
 
-def send_msg(client, user, message, interval):
+def send_msg(client, user, message):
     res = False
     try:
         client.send_message(user, message)
@@ -37,11 +38,17 @@ def start_spam(accounts, user_list, interval, message):
     s = Storage()
     keys = s.get_api_keys()
 
+    # get all available accounts
     clients = [TelegramClient(acc['session_id'], keys['api_id'], keys['api_hash']) for acc in accounts]
 
+    # iterate over all accounts
+    # save only working clients (they may be banned for some reasond)
+    on_clients = []
     for idx, client in enumerate(clients):
         try:
+            #try connecting account
             client.connect()
+            on_clients.append(client)
             print ('Client {} connected.'.format(idx))
             print ('Client authorized: {}'.format(client.is_user_authorized()))
         except Exception as e:
@@ -50,9 +57,11 @@ def start_spam(accounts, user_list, interval, message):
             # try one more time
             try:
                 client.connect()
+                on_clients.append(client)
                 print ('Client {} connected.'.format(idx))
                 print ('Client authorized: {}'.format(client.is_user_authorized()))
             except Exception as e:
+                # if
                 print ("Client {} can't connect: ".format(idx))
 
 
@@ -60,17 +69,19 @@ def start_spam(accounts, user_list, interval, message):
     for idx, user in enumerate(user_list):
         not_edited = user
         if user[0] == '@':
+            # check if it is username, not phone number
             user = user[1:]
 
         try:
-            if send_msg(clients[idx % len(accounts)], user, message, interval):
+            # send message from client N
+            if send_msg(on_clients[idx % len(accounts)], user, message):
                 s.user_invoiced(message, not_edited)
         except Exception as e:
             print (e) # set logger later
 
         time.sleep(interval)
 
-    for client in clients:
+    for client in on_clients:
         try:
             client.disconnect()
         except Exception as e:
@@ -86,6 +97,7 @@ def generate_report():
             f.write('{} - {}\n'.format(user, delivered))
 
 def garbage_collector():
+    # kill all processes that got stuck
     while True:
         processes_to_delete = []
         for key, item in list(process_list.items()):
@@ -93,7 +105,6 @@ def garbage_collector():
             if not item['process'].is_alive():
                 item['process'].terminate()
                 item['process'].join()
-                processes_to_delete.append(key)
                 process_list.pop(key, None)
                 continue
 
@@ -101,7 +112,6 @@ def garbage_collector():
             if (item['times_checked'] - 1) * 3600 > item['default_time']:
                 item['process'].terminate()
                 item['process'].join()
-                processes_to_delete.append(key)
                 process_list.pop(key, None)
                 continue
 

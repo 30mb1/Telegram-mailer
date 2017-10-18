@@ -17,16 +17,21 @@ logging.basicConfig(level=logging.DEBUG)
 def login():
     form = forms.LoginForm()
 
+    # check login for for submitting
     if form.validate_on_submit():
         if current_app.database.check_auth(form.username.data, form.password.data):
+
+            # store login data in session
             session['logged_in'] = True
             return redirect(url_for('index'))
 
     return render_template('login.html', form=form)
 
+
 @app.route('/config', methods=['GET','POST'])
 def config():
     spam_form = forms.SpamForm()
+
 
     if spam_form.submit_spam.data and spam_form.validate_on_submit():
 
@@ -37,11 +42,11 @@ def config():
         #get list of users
         users = spam_form.users.data.split('\r\n')
 
-        #split list into smaller pieces for every account
+        # if there are activated accounts
         if len(accs) > 0:
             current_app.database.insert_spam_job(users, spam_form.message.data)
 
-            #start spamming in another process
+            # start spamming in another process
             p = Process(
                 target=start_spam,
                 args=(
@@ -52,7 +57,9 @@ def config():
                 )
             )
 
-            process_list[spam_form.message.data] = { 'process' : p, 'times_checked' : 0, 'default_time' : len(users) * int(spam_form.interval.data) * 2}
+            # save process object in global dict for tracking it status
+            #
+            process_list[spam_form.message.data] = { 'process' : p, 'times_checked' : 0, 'default_time' : len(users) * int(spam_form.interval.data) * 2 }
 
             p.start()
         else:
