@@ -58,7 +58,6 @@ def config():
             )
 
             # save process object in global dict for tracking it status
-            #
             process_list[spam_form.message.data] = { 'process' : p, 'times_checked' : 0, 'default_time' : len(users) * int(spam_form.interval.data) * 2 }
 
             p.start()
@@ -67,6 +66,7 @@ def config():
 
         #print (spam_form.data)
 
+    # user requested report for current spam job or termiante it
     if len(request.args) != 0:
         args = [i for i in request.args.keys()]
         if 'Report' in args:
@@ -74,15 +74,19 @@ def config():
         else:
             process_list[args[0]]['process'].terminate()
 
+    # get list of started spam jobs from db
     jobs = current_app.database.get_spam_jobs()
     alive_jobs = []
     for job in jobs:
+        # check if job is still alive
         if process_list.get(job['message'], None) != None:
             if process_list[job['message']]['process'].is_alive():
                 alive_jobs.append(job)
             else:
+                # if process id dead, delete from db
                 current_app.database.delete_spam_job(job['message'])
         else:
+            # if there is no such process, delete from db
             current_app.database.delete_spam_job(job['message'])
 
     return render_template('config.html', spam_form=spam_form, jobs=alive_jobs)
@@ -128,16 +132,19 @@ def account():
             client = clients_list[request.form['phone']]
 
             try:
+                # connect and use given code
                 client.connect()
                 client.sign_in(code=request.form['code'])
 
                 time.sleep(0.5)
                 if not client.is_user_authorized():
+                    # authorization failed
                     client.disconnect()
                     raise Exception("Looks like there was a wrong code? user not authorized.")
 
                 client.disconnect()
 
+                # if it is ok, add account to db
                 current_app.database.activate_account(request.form['phone'])
                 clients_list.pop(request.form['phone'], None)
             except Exception as e:
@@ -145,6 +152,7 @@ def account():
                 client.disconnect()
                 flash('Wrong code or some error occured.', 'activating error')
 
+        # user requested deleting of acc
         elif request.form.get('action', None) == 'Remove':
             current_app.database.del_account(request.form['phone'])
 
