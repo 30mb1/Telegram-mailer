@@ -4,7 +4,7 @@ import time
 from database import Storage
 from telethon import TelegramClient
 import logging
-from utils import request_sign_in, garbage_collector, start_spam, generate_report
+from utils import request_sign_in, start_spam, generate_report
 import threading
 from multiprocessing import Process
 from uuid import uuid4
@@ -23,11 +23,11 @@ def login():
 
             # store login data in session
             session['logged_in'] = True
-            return redirect(url_for('index'))
+            return redirect(url_for('config'))
 
     return render_template('login.html', form=form)
 
-
+@app.route('/')
 @app.route('/config', methods=['GET','POST'])
 def config():
     spam_form = forms.SpamForm()
@@ -172,12 +172,6 @@ def get_report():
         print (e)
         return redirect(url_for('config'))
 
-@app.route('/')
-@app.route('/index')
-def index():
-
-    return render_template('index.html')
-
 @app.route('/logout')
 def logout():
     session['logged_in'] = False
@@ -191,8 +185,5 @@ def before_request():
 
 @app.before_first_request
 def before_first_request():
-    current_app.telegram_clients = {}
-    t = threading.Thread(target=garbage_collector, args=())
-    t.start()
     current_app.database = Storage()
     return

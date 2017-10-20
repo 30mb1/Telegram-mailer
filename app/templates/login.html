@@ -1,24 +1,41 @@
-<!DOCTYPE html>
 <html >
 <head>
   <meta charset="UTF-8">
-  <title>Poloniex Bot Login Page</title>
-  <link href="{{ url_for('static', filename='css/style.css') }}" type="text/css" rel="stylesheet">
+  <title>Wex chat parser</title>
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+  <meta name="viewport" content="width=device-width" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
 </head>
 
 <body>
-{% from "/macros.html" import render_field_login %}
-<form action="login" method="post">
-    {{ form.csrf_token }}
 
-    {{ render_field_login(form.username, class="input text") }}
-    {{ render_field_login(form.password, class="input text") }}
+    <div class="container">
+        <div class="row">
+    		<div class="col-md-4 col-md-offset-4">
+        		<div class="panel panel-default">
+    			  	<div class="panel-heading">
+    			    	<h3 class="panel-title">Please sign in</h3>
+    			 	</div>
+    			  	<div class="panel-body">
+    			    	<form action="/login" method="post">
+                            {{ form.csrf_token }}
+                        <fieldset>
+    			    	  	<div class="form-group">
+    			    		    <input class="form-control" placeholder="Login" name="username" type="text">
+    			    		</div>
+    			    		<div class="form-group">
+    			    			<input class="form-control" placeholder="Password" name="password" type="password">
+    			    		</div>
+    			    		<input class="btn btn-lg btn-success btn-block" type="submit" value="Login">
+                            <!-- <a href="/register" class="btn btn-lg btn-success btn-block">Sign up</a> -->
+    			    	</fieldset>
+    			      	</form>
+    			    </div>
+    			</div>
+    		</div>
+    	</div>
+    </div>
 
-    <button type="submit" class="button buttonBlue">Sign in
-        <div class="ripples buttonRipples"><span class="ripplesCircle"></span></div>
-    </button>
-</form>
-
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
 </body>
 </html>

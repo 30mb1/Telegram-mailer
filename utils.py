@@ -95,26 +95,3 @@ def generate_report():
     with open(filename, 'w') as f:
         for user, delivered in data['delivery'].items():
             f.write('{} - {}\n'.format(user, delivered))
-
-def garbage_collector():
-    # kill all processes that got stuck
-    while True:
-        processes_to_delete = []
-        for key, item in list(process_list.items()):
-            #process dead
-            if not item['process'].is_alive():
-                item['process'].terminate()
-                item['process'].join()
-                process_list.pop(key, None)
-                continue
-
-            #check if process already wasted its time
-            if (item['times_checked'] - 1) * 3600 > item['default_time']:
-                item['process'].terminate()
-                item['process'].join()
-                process_list.pop(key, None)
-                continue
-
-            item['times_checked'] += 1
-
-        time.sleep(3600)
