@@ -120,6 +120,7 @@ def account():
             current_app.database.add_account(new_acc_form.data, unique_key)
 
         except:
+            clients_list.pop([data['phone'], None)
             flash('Some error occured, try again.', 'registration error')
             pass
 
@@ -129,28 +130,32 @@ def account():
     if request.form:
         if request.form.get('action', None) == 'Activate' and request.form['code'] != '':
             #activating account through TelegramClient that we created earlier for this number
-            client = clients_list[request.form['phone']]
+            client = clients_list.get(request.form['phone'], None)
+            if client == None:
+                flash('Some error with activation.', 'activating error')
+                client.disconnect()
+            else:
 
-            try:
-                # connect and use given code
-                client.connect()
-                client.sign_in(code=request.form['code'])
+                try:
+                    # connect and use given code
+                    client.connect()
+                    client.sign_in(code=request.form['code'])
 
-                time.sleep(0.5)
-                if not client.is_user_authorized():
-                    # authorization failed
+                    time.sleep(0.5)
+                    if not client.is_user_authorized():
+                        # authorization failed
+                        client.disconnect()
+                        raise Exception("Looks like there was a wrong code? user not authorized.")
+
                     client.disconnect()
-                    raise Exception("Looks like there was a wrong code? user not authorized.")
 
-                client.disconnect()
-
-                # if it is ok, add account to db
-                current_app.database.activate_account(request.form['phone'])
-                clients_list.pop(request.form['phone'], None)
-            except Exception as e:
-                print (e)
-                client.disconnect()
-                flash('Wrong code or some error occured.', 'activating error')
+                    # if it is ok, add account to db
+                    current_app.database.activate_account(request.form['phone'])
+                    clients_list.pop(request.form['phone'], None)
+                except Exception as e:
+                    print (e)
+                    client.disconnect()
+                    flash('Wrong code or some error occured.', 'activating error')
 
         # user requested deleting of acc
         elif request.form.get('action', None) == 'Remove':
