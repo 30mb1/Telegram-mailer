@@ -130,7 +130,7 @@ def account():
     if request.form:
         if request.form.get('action', None) == 'Activate' and request.form['code'] != '':
             #activating account through TelegramClient that we created earlier for this number
-            client = clients_list.get(r equest.form['phone'], None)
+            client = clients_list.get(request.form['phone'], None)
             if client == None:
                 flash('Some error with activation.', 'activating error')
                 client.disconnect()
