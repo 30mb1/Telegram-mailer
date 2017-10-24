@@ -120,7 +120,7 @@ def account():
             current_app.database.add_account(new_acc_form.data, unique_key)
 
         except:
-            clients_list.pop([data['phone'], None)
+            clients_list.pop(data['phone'], None)
             flash('Some error occured, try again.', 'registration error')
             pass
 
@@ -130,7 +130,7 @@ def account():
     if request.form:
         if request.form.get('action', None) == 'Activate' and request.form['code'] != '':
             #activating account through TelegramClient that we created earlier for this number
-            client = clients_list.get(request.form['phone'], None)
+            client = clients_list.get(r equest.form['phone'], None)
             if client == None:
                 flash('Some error with activation.', 'activating error')
                 client.disconnect()
