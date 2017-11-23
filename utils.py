@@ -81,6 +81,8 @@ def start_spam(accounts, user_list, interval, message):
 
         time.sleep(interval)
 
+    generate_report()
+
     for client in on_clients:
         try:
             client.disconnect()
@@ -88,10 +90,13 @@ def start_spam(accounts, user_list, interval, message):
             print (e) # set logger later
 
 def generate_report():
+    now = time.strftime("%c")
     s = Storage()
     data = next(s.get_spam_jobs())
     print (data)
-    filename = './tmp/report.txt'
+    filename = './tmp/{}.txt'.format(now)
     with open(filename, 'w') as f:
         for user, delivered in data['delivery'].items():
             f.write('{} - {}\n'.format(user, delivered))
+
+    return now

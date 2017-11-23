@@ -167,11 +167,11 @@ def account():
 
 @app.route('/report')
 def get_report():
-    generate_report()
+    file_name = generate_report()
     try:
         return send_from_directory(
             os.path.join(os.getcwd(), 'tmp'),
-            'report.txt'
+            '{}.txt'.format(file_name)
         )
     except Exception as e:
         print (e)
