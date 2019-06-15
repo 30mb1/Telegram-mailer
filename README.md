@@ -93,7 +93,7 @@ YOUR_API_HASH
 Now you can run application and check it locally or from external address that we specified in .conf file.
 
 ```bash
-cd chat-parser
+cd Telegram-mailer
 source venv/bin/activate
 # choose port, that we used in nginx .conf file earlier
 gunicorn app:app -b 127.0.0.1:8000 -w 8 --threads 8 # you can run it in screen too
